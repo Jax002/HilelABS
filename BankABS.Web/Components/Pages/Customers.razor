@@ -1,10 +1,10 @@
 ﻿@page "/customers"
+@layout Layout.MainLayout
 @using BankABS.Domain
 @using BankABS.Services
-@using MudBlazor
 @inject ICustomerService CustomerService
 @inject ISnackbar Snackbar
-@inject IDialogService DialogService
+@inject IJSRuntime JSRuntime
 
 <MudCard>
     <MudCardHeader>
@@ -12,121 +12,102 @@
             <MudText Typo="Typo.h5">Управление клиентами</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenCreateDialog">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@CreateNewCustomer">
                 <MudIcon Icon="@Icons.Material.Filled.Add" /> Новый клиент
             </MudButton>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
         <MudTextField @bind-Value="searchString" Immediate="true" Placeholder="Поиск..." Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" />
-        
-        <MudTable @ref="table" Items="@customers" Hover="true" Breakpoint="Breakpoint.Sm" Loading="loading">
-            <HeaderContent>
-                <MudTh>ID</MudTh>
-                <MudTh>ФИО</MudTh>
-                <MudTh>Email</MudTh>
-                <MudTh>Телефон</MudTh>
-                <MudTh>ИНН</MudTh>
-                <MudTh>Статус</MudTh>
-                <MudTh>Действия</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="ID">@context.Id</MudTd>
-                <MudTd DataLabel="ФИО">@context.FullName</MudTd>
-                <MudTd DataLabel="Email">@context.Email</MudTd>
-                <MudTd DataLabel="Телефон">@context.Phone</MudTd>
-                <MudTd DataLabel="ИНН">@context.TaxId</MudTd>
-                <MudTd DataLabel="Статус">
-                    <MudChip Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)">
-                        @(context.IsActive ? "Активен" : "Неактивен")
-                    </MudChip>
-                </MudTd>
-                <MudTd DataLabel="Действия">
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" OnClick="@(() => ViewDetails(context.Id))" Color="Color.Info" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => EditCustomer(context))" Color="Color.Warning" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(() => DeleteCustomer(context))" Color="Color.Error" />
-                    <MudIconButton Icon="@Icons.Material.Filled.AccountBalance" OnClick="@(() => ViewAccounts(context.Id))" Color="Color.Success" />
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
+
+        @if (loading)
+        {
+            <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="my-4" />
+        }
+        else
+        {
+            <MudTable Items="@filteredCustomers" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>ФИО</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Телефон</MudTh>
+                    <MudTh>ИНН</MudTh>
+                    <MudTh>Статус</MudTh>
+                    <MudTh>Действия</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="ID">@context.Id</MudTd>
+                    <MudTd DataLabel="ФИО">@context.FullName</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="Телефон">@context.Phone</MudTd>
+                    <MudTd DataLabel="ИНН">@context.TaxId</MudTd>
+                    <MudTd DataLabel="Статус">
+                        <MudText Color="@(context.IsActive ? Color.Success : Color.Error)">
+                            @(context.IsActive ? "Активен" : "Неактивен")
+                        </MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Действия">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(() => DeleteCustomer(context))" Color="Color.Error" Size="Size.Small" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
     </MudCardContent>
 </MudCard>
 
 @code {
-    private MudTable<Customer> table = null!;
-    private IEnumerable<Customer> customers = new List<Customer>();
+    private List<Customer> customers = new();
     private string searchString = string.Empty;
     private bool loading = true;
-    
+
+    private List<Customer> filteredCustomers => string.IsNullOrWhiteSpace(searchString)
+            ? customers
+            : customers.Where(c =>
+                c.FullName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                c.TaxId.Contains(searchString)).ToList();
+
     protected override async Task OnInitializedAsync()
     {
         await LoadCustomers();
     }
-    
+
     private async Task LoadCustomers()
     {
         loading = true;
-        customers = await CustomerService.GetAllCustomersAsync();
+        try
+        {
+            customers = (await CustomerService.GetAllCustomersAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+        }
         loading = false;
     }
-    
-    private bool FilterFunc(Customer customer)
+
+    private async Task CreateNewCustomer()
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        
-        return customer.FullName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-               customer.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-               customer.TaxId.Contains(searchString);
+        Snackbar.Add("Функция создания клиента будет добавлена позже", Severity.Info);
     }
-    
-    private async Task OpenCreateDialog()
-    {
-        var parameters = new DialogParameters();
-        var dialog = await DialogService.Show<CreateCustomerDialog>("Новый клиент", parameters).Result;
-        if (!dialog.Canceled)
-        {
-            await LoadCustomers();
-            Snackbar.Add("Клиент успешно создан", Severity.Success);
-        }
-    }
-    
-    private async Task EditCustomer(Customer customer)
-    {
-        var parameters = new DialogParameters { ["Customer"] = customer };
-        var dialog = await DialogService.Show<EditCustomerDialog>("Редактирование клиента", parameters).Result;
-        if (!dialog.Canceled)
-        {
-            await LoadCustomers();
-            Snackbar.Add("Клиент успешно обновлен", Severity.Success);
-        }
-    }
-    
+
     private async Task DeleteCustomer(Customer customer)
     {
-        bool? result = await DialogService.ShowMessageBox(
-            "Подтверждение удаления",
-            $"Вы уверены, что хотите удалить клиента {customer.FullName}?",
-            "Да", "Нет");
-        
-        if (result == true)
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Удалить клиента {customer.FullName}?");
+
+        if (confirmed)
         {
-            await CustomerService.DeleteCustomerAsync(customer.Id);
-            await LoadCustomers();
-            Snackbar.Add("Клиент удален", Severity.Info);
+            try
+            {
+                await CustomerService.DeleteCustomerAsync(customer.Id);
+                await LoadCustomers();
+                Snackbar.Add("Клиент удален", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Ошибка удаления: {ex.Message}", Severity.Error);
+            }
         }
-    }
-    
-    private void ViewDetails(int id)
-    {
-        // Реализация просмотра деталей
-    }
-    
-    private void ViewAccounts(int customerId)
-    {
-        // Реализация просмотра счетов
     }
 }

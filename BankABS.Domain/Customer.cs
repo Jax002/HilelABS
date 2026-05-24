@@ -1,44 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Principal;
 using System.Text;
 using System.Transactions;
 
 namespace BankABS.Domain
 {
+    [Table("CUSTOMERS", Schema = "SYSTEM")]
     public class Customer
     {
         [Key]
+        [Column("ID")]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [Column("FULLNAME")]
         public string FullName { get; set; } = string.Empty;
 
-        [Required]
-        [EmailAddress]
-        [StringLength(100)]
+        [Column("EMAIL")]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [Phone]
-        [StringLength(20)]
+        [Column("PHONE")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(14)]
+        [Column("TAXID")]
         public string TaxId { get; set; } = string.Empty;
 
+        [Column("PASSPORT_NUMBER")]
+        public string? PassportNumber { get; set; }
+
+        [Column("DATE_OF_BIRTH")]
         public DateTime DateOfBirth { get; set; }
 
-        [StringLength(200)]
-        public string Address { get; set; } = string.Empty;
+        [Column("ADDRESS")]
+        public string? Address { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Column("CREATEDAT")]
+        public DateTime CreatedAt { get; set; }
 
+        [Column("ISACTIVE")]
         public bool IsActive { get; set; } = true;
-
         public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
         public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }

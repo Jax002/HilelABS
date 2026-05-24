@@ -1,42 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using System.Transactions;
 
 namespace BankABS.Domain
 {
+    [Table("DEALS", Schema = "SYSTEM")]
     public class Deal
     {
         [Key]
+        [Column("ID")]
         public int Id { get; set; }
 
-        [Required]
-        public DateTime DealDate { get; set; } = DateTime.UtcNow;
+        [Column("DEALDATE")]
+        public DateTime DealDate { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [Column("DEALTYPE")]
         public string DealType { get; set; } = string.Empty;
 
-        [Required]
+        [Column("AMOUNT")]
         public decimal Amount { get; set; }
 
-        [Required]
+        [Column("INTERESTRATE")]
         public decimal InterestRate { get; set; }
 
+        [Column("STARTDATE")]
         public DateTime StartDate { get; set; }
 
+        [Column("ENDDATE")]
         public DateTime? EndDate { get; set; }
 
-        [StringLength(50)]
+        [Column("STATUS")]
         public string Status { get; set; } = "Active";
 
-        [Required]
+        [Column("ACCOUNTID")]
         public int AccountId { get; set; }
 
-        [StringLength(500)]
-        public string Description { get; set; } = string.Empty;
+        [Column("DESCRIPTION")]
+        public string? Description { get; set; }
+
+        [Column("STATUS_ID")]
+        public int StatusId { get; set; } = 1;
+
+        [Column("DEAL_TYPE_ID")]
+        public int DealTypeId { get; set; } = 1;
+
+        // Navigation properties
         public virtual Account Account { get; set; } = null!;
         public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public virtual ICollection<DealPayment> Payments { get; set; } = new List<DealPayment>();
     }
 }

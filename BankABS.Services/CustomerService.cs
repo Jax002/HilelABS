@@ -1,12 +1,12 @@
-﻿using BankABS.Domain;
-using Fluent.Infrastructure.FluentModel;
+﻿using BankABS.Data;
+using BankABS.Domain;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Security.Principal;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace BankABS.Services
+namespace BankABS.Services.Implementations
 {
     public class CustomerService : ICustomerService
     {
@@ -54,7 +54,7 @@ namespace BankABS.Services
             if (customer == null)
                 return false;
 
-            customer.IsActive = false; // Soft delete
+            customer.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
         }

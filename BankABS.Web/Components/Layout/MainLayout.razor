@@ -1,43 +1,28 @@
-﻿@using MudBlazor
+﻿@namespace BankABS.Web.Components.Layout
 @inherits LayoutComponentBase
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
-
-<MudThemeProvider Theme="new MudTheme()" />
+@using Microsoft.AspNetCore.Components.Routing
+<MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h6" Class="ml-2">АБС Банк - Автоматизированная Банковская Система</MudText>
+        <MudText Typo="Typo.h6" Class="ml-2">АБС Банк</MudText>
         <MudSpacer />
-        <MudText Typo="Typo.body2" Class="mr-2">Добро пожаловать, Администратор</MudText>
     </MudAppBar>
-    
+
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudNavMenu>
             <MudNavLink Href="/" Match="NavLinkMatch.All">
-                <MudIcon Icon="@Icons.Material.Filled.Dashboard" /> Дашборд
+                <MudIcon Icon="@Icons.Material.Filled.Dashboard" /> Главная
             </MudNavLink>
             <MudNavLink Href="/customers">
                 <MudIcon Icon="@Icons.Material.Filled.People" /> Клиенты
             </MudNavLink>
-            <MudNavLink Href="/accounts">
-                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" /> Счета
-            </MudNavLink>
-            <MudNavLink Href="/deals">
-                <MudIcon Icon="@Icons.Material.Filled.Handshake" /> Сделки
-            </MudNavLink>
-            <MudNavLink Href="/transactions">
-                <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" /> Операции
-            </MudNavLink>
-            <MudNavLink Href="/reports">
-                <MudIcon Icon="@Icons.Material.Filled.BarChart" /> Отчеты
-            </MudNavLink>
         </MudNavMenu>
     </MudDrawer>
-    
+
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Large" Class="my-8">
             @Body
@@ -47,7 +32,7 @@
 
 @code {
     private bool _drawerOpen = true;
-    
+
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;

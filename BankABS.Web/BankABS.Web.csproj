@@ -1,20 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MudBlazor" Version="9.4.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MudBlazor" Version="9.4.0" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BankABS.Data\BankABS.Data.csproj" />
-    <ProjectReference Include="..\BankABS.Domain\BankABS.Domain.csproj" />
-    <ProjectReference Include="..\BankABS.Services\BankABS.Services.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\BankABS.Data\BankABS.Data.csproj" />
+		<ProjectReference Include="..\BankABS.Domain\BankABS.Domain.csproj" />
+		<ProjectReference Include="..\BankABS.Services\BankABS.Services.csproj" />
+	</ItemGroup>
 
 </Project>
