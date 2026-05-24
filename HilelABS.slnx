@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BankABS.Data/BankABS.Data.csproj" Id="1b45cc6e-5538-4209-81f5-d0bb3babd83d" />
+  <Project Path="BankABS.Domain/BankABS.Domain.csproj" Id="44489f21-c3f6-4c5c-9239-68561a9078f3" />
+  <Project Path="BankABS.Services/BankABS.Services.csproj" Id="cae155ae-261c-41ac-b06e-4fb1918f980e" />
+  <Project Path="BankABS.Web/BankABS.Web.csproj" />
+</Solution>
