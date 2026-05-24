@@ -1,6 +1,5 @@
 using BankABS.Data;
 using BankABS.Services;
-using BankABS.Services.Implementations;
 using BankABS.Web.Components;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -16,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection")));
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>(); 
 
 var app = builder.Build();
 

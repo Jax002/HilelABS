@@ -1,0 +1,216 @@
+﻿@page "/accounts"
+@using BankABS.Domain
+@using BankABS.Services
+@inject IAccountService AccountService
+@inject ICustomerService CustomerService
+@inject ICurrencyService CurrencyService
+@inject ISnackbar Snackbar
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">Управление счетами</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenCreateDialog">
+                <MudIcon Icon="@Icons.Material.Filled.Add" /> Новый счет
+            </MudButton>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudTextField @bind-Value="searchString" Immediate="true" Placeholder="Поиск по номеру счета..." Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" />
+
+        @if (loading)
+        {
+            <MudProgressCircular Indeterminate="true" Size="Size.Large" Class="my-4" />
+        }
+        else
+        {
+            <MudTable Items="@filteredAccounts" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>ID</MudTh>
+                    <MudTh>Номер счета</MudTh>
+                    <MudTh>Клиент</MudTh>
+                    <MudTh>Баланс</MudTh>
+                    <MudTh>Валюта</MudTh>
+                    <MudTh>Тип счета</MudTh>
+                    <MudTh>Статус</MudTh>
+                    <MudTh>Действия</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Id</MudTd>
+                    <MudTd>@context.AccountNumber</MudTd>
+                    <MudTd>@context.Customer?.FullName</MudTd>
+                    <MudTd>@context.Balance.ToString("N2")</MudTd>
+                    <MudTd>@context.Currency</MudTd>
+                    <MudTd>@context.AccountType</MudTd>
+                    <MudTd>
+                        <MudChip Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Error)" T="string">
+                            @(context.IsActive ? "Активен" : "Неактивен")
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" OnClick="@(() => ViewDetails(context.Id))" Color="Color.Info" Size="Size.Small" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+<MudDialog @bind-IsVisible="showDialog">
+    <TitleContent>Создание нового счета</TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudSelect @bind-Value="selectedCustomerId" Label="Клиент" Required="true" Variant="Variant.Outlined">
+                    @foreach (var customer in customers)
+                    {
+                        <MudSelectItem Value="@customer.Id">@customer.FullName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="newAccountType" Label="Тип счета" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem Value="@("Current")">Текущий</MudSelectItem>
+                        <MudSelectItem Value="@("Savings")">Сберегательный</MudSelectItem>
+                        <MudSelectItem Value="@("Credit")">Кредитный</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect @bind-Value="selectedCurrencyCode" Label="Валюта" Required="true" Variant="Variant.Outlined">
+                    @foreach (var currency in currencies)
+                    {
+                        <MudSelectItem Value="@currency.Code">@currency.NameUa (@currency.Symbol)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudNumericField @bind-Value="initialBalance" Label="Начальный баланс" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="CloseDialog">Отмена</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateAccount">Создать</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<Account> accounts = new();
+    private List<Customer> customers = new();
+    private List<Currency> currencies = new();
+    private string searchString = string.Empty;
+    private bool loading = true;
+    private bool showDialog = false;
+
+    private int selectedCustomerId;
+    private string newAccountType = "Current";
+    private string selectedCurrencyCode = string.Empty;
+    private decimal initialBalance = 0;
+
+    private List<Account> filteredAccounts => string.IsNullOrWhiteSpace(searchString)
+            ? accounts
+            : accounts.Where(a => a.AccountNumber.Contains(searchString)).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        try
+        {
+            accounts = (await AccountService.GetAllAccountsAsync()).ToList();
+            customers = (await CustomerService.GetAllCustomersAsync()).ToList();
+            currencies = await CurrencyService.GetAllCurrenciesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка загрузки: {ex.Message}", Severity.Error);
+        }
+        loading = false;
+    }
+
+    private void OpenCreateDialog()
+    {
+        selectedCustomerId = 0;
+        selectedCurrencyCode = string.Empty;
+        initialBalance = 0;
+        showDialog = true;
+    }
+
+    private void CloseDialog()
+    {
+        showDialog = false;
+        selectedCustomerId = 0;
+        selectedCurrencyCode = string.Empty;
+        initialBalance = 0;
+    }
+
+    private async Task CreateAccount()
+    {
+        if (selectedCustomerId == 0)
+        {
+            Snackbar.Add("Выберите клиента", Severity.Error);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(selectedCurrencyCode))
+        {
+            Snackbar.Add("Выберите валюту счета", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var account = new Account
+            {
+                CustomerId = selectedCustomerId,
+                AccountNumber = GenerateAccountNumber(),
+                AccountType = newAccountType,
+                Currency = selectedCurrencyCode,
+                Balance = initialBalance,
+                IsActive = true,
+                CurrencyCode = selectedCurrencyCode,
+                StatusId = 1,
+                AccountTypeId = GetAccountTypeId(newAccountType),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await AccountService.CreateAccountAsync(account);
+            await LoadData();
+            CloseDialog();
+            Snackbar.Add($"Счет в {selectedCurrencyCode} успешно создан", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Ошибка создания: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private int GetAccountTypeId(string accountType)
+    {
+        return accountType switch
+        {
+            "Current" => 1,
+            "Savings" => 2,
+            "Credit" => 3,
+            _ => 1
+        };
+    }
+
+    private string GenerateAccountNumber()
+    {
+        return $"UA{DateTime.Now:yyMMddHHmmss}{new Random().Next(1000, 9999)}";
+    }
+
+    private void ViewDetails(int id)
+    {
+        Snackbar.Add($"Просмотр счета ID: {id}", Severity.Info);
+    }
+}

@@ -40,8 +40,7 @@ namespace BankABS.Domain
         public DateTime CreatedAt { get; set; }
 
         [Column("ISACTIVE")]
-        public bool IsActive { get; set; } = true;
-        public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
-        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public bool IsActive { get; set; }
+        public virtual ICollection<Account>? Accounts { get; set; }
     }
 }

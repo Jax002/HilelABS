@@ -21,7 +21,7 @@ namespace BankABS.Domain
         public decimal Balance { get; set; }
 
         [Column("CURRENCY")]
-        public string Currency { get; set; } = "UAH";
+        public string Currency { get; set; } = string.Empty;
 
         [Column("CUSTOMERID")]
         public int CustomerId { get; set; }
@@ -30,21 +30,24 @@ namespace BankABS.Domain
         public DateTime CreatedAt { get; set; }
 
         [Column("ISACTIVE")]
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         [Column("ACCOUNTTYPE")]
-        public string AccountType { get; set; } = "Current";
+        public string AccountType { get; set; } = string.Empty;
 
         [Column("STATUS_ID")]
-        public int StatusId { get; set; } = 1;
+        public int StatusId { get; set; }
 
         [Column("ACCOUNT_TYPE_ID")]
-        public int AccountTypeId { get; set; } = 1;
+        public int AccountTypeId { get; set; }
 
         [Column("CURRENCY_CODE")]
-        public string CurrencyCode { get; set; } = "UAH";
-        public virtual Customer Customer { get; set; } = null!;
-        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-        public virtual ICollection<Deal> Deals { get; set; } = new List<Deal>();
+        public string CurrencyCode { get; set; } = string.Empty;
+
+        [Column("CurrencyId")]
+        public int? CurrencyId { get; set; }
+
+        [ForeignKey("CustomerId")]
+        public virtual Customer? Customer { get; set; }
     }
 }

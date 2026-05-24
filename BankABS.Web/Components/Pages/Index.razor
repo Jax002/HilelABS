@@ -1,12 +1,23 @@
 ﻿@page "/"
+@using BankABS.Services
+@inject ICustomerService CustomerService
 
-<MudCard>
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudText Typo="Typo.h4">Добро пожаловать в АБС Банк</MudText>
-        </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudText>Система управления банковскими операциями (Гривна)</MudText>
-    </MudCardContent>
-</MudCard>
+<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4 text-center" Elevation="2">
+            <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Large" Color="Color.Primary" />
+            <MudText Typo="Typo.h4">@totalCustomers</MudText>
+            <MudText Typo="Typo.body2">Клиентов</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private int totalCustomers = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customers = await CustomerService.GetAllCustomersAsync();
+        totalCustomers = customers.Count();
+    }
+}

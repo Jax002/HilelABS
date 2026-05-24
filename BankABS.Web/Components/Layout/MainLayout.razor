@@ -1,6 +1,7 @@
 ﻿@namespace BankABS.Web.Components.Layout
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Routing
+
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -19,6 +20,9 @@
             </MudNavLink>
             <MudNavLink Href="/customers">
                 <MudIcon Icon="@Icons.Material.Filled.People" /> Клиенты
+            </MudNavLink>
+            <MudNavLink Href="/accounts">
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" /> Счета
             </MudNavLink>
         </MudNavMenu>
     </MudDrawer>

@@ -17,8 +17,9 @@ namespace BankABS.Domain
         [Column("DEALDATE")]
         public DateTime DealDate { get; set; }
 
+        [Required]
         [Column("DEALTYPE")]
-        public string DealType { get; set; } = string.Empty;
+        public string DealType { get; set; } = null!;
 
         [Column("AMOUNT")]
         public decimal Amount { get; set; }
@@ -33,8 +34,9 @@ namespace BankABS.Domain
         public DateTime? EndDate { get; set; }
 
         [Column("STATUS")]
-        public string Status { get; set; } = "Active";
+        public string Status { get; set; } = null!;
 
+        [Required]
         [Column("ACCOUNTID")]
         public int AccountId { get; set; }
 
@@ -42,12 +44,11 @@ namespace BankABS.Domain
         public string? Description { get; set; }
 
         [Column("STATUS_ID")]
-        public int StatusId { get; set; } = 1;
+        public int StatusId { get; set; }
 
         [Column("DEAL_TYPE_ID")]
-        public int DealTypeId { get; set; } = 1;
+        public int DealTypeId { get; set; }
 
-        // Navigation properties
         public virtual Account Account { get; set; } = null!;
         public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
         public virtual ICollection<DealPayment> Payments { get; set; } = new List<DealPayment>();

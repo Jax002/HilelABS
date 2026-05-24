@@ -44,8 +44,6 @@ namespace BankABS.Domain
 
         [Column("TRANSACTION_ID")]
         public int? TransactionId { get; set; }
-
-        // Navigation properties
         public virtual Deal Deal { get; set; } = null!;
         public virtual Transaction? Transaction { get; set; }
     }
